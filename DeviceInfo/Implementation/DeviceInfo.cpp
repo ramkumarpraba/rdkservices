@@ -97,11 +97,19 @@ namespace Plugin {
 
     uint32_t DeviceInfoImplementation::Make(string& make) const
     {
-        return (GetFileRegex(_T("/etc/device.properties"),
-                    std::regex("^MFG_NAME(?:\\s*)=(?:\\s*)(?:\"{0,1})([^\"\\n]+)(?:\"{0,1})(?:\\s*)$"), make)
-                   == Core::ERROR_NONE)
-            ? Core::ERROR_NONE
-            : GetMFRData(mfrSERIALIZED_TYPE_MANUFACTURER, make);
+	    string modelNum = "";
+	    GetFileRegex(_T("/etc/device.properties"),std::regex("^MODEL_NUM(?:\\s*)=(?:\\s*)(?:\"{0,1})([^\"\\n]+)(?:\"{0,1})(?:\\s*)$"), modelNum);
+
+	    if(modelNum != "SKTL11AEI")
+	    {
+		    if (GetFileRegex(_T("/etc/device.properties"),
+					    std::regex("^MFG_NAME(?:\\s*)=(?:\\s*)(?:\"{0,1})([^\"\\n]+)(?:\"{0,1})(?:\\s*)$"), make)
+				    == Core::ERROR_NONE)
+		    {
+			    return Core::ERROR_NONE;
+		    }
+	    }
+	    return GetMFRData(mfrSERIALIZED_TYPE_MANUFACTURER, make);
     }
 
     uint32_t DeviceInfoImplementation::Model(string& model) const
